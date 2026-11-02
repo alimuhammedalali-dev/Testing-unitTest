@@ -1,5 +1,6 @@
 import pytest
 from src.main import *
+from unittest.mock import MagicMock
 # Simple function 1
 def test_calculate_total_success():
     assert calculate_total(100, 15) == 115
@@ -34,3 +35,44 @@ def test_is_secure_password(password, expected_output):
     assert is_secure_password(password) == expected_output
 
 
+
+
+
+# Complex function 1
+# create a facke user collection to simulate the database
+@pytest.fixture
+def mock_collection():
+    collection = MagicMock()
+    collection.find_one.return_value = {
+        "username": "ali", 
+        "password": "secure123", 
+        "role": "admin"
+    }
+    return collection
+
+@pytest.mark.parametrize(
+    "username_in, password_in, role_in, expected_output",
+    [
+        ("ali", "secure123", None, "Authenticated successfully"), 
+        # باسوورد صح
+        ("ali", "wrong_pwd", None, "Invalid password"), 
+        # باسوورد غلط
+        ("ali", None, "admin", "Authorized as admin"),
+        # دور صح
+        ("ali", None, "user", "Role mismatch"), 
+        # دور غلط
+        ("ali", None, None, "Missing password or role") 
+        # ناقص
+    ]
+)
+def test_check_user_access_cases(mock_collection, username_in, password_in, role_in, expected_output):
+    
+    result = check_user_access(mock_collection, username_in, password=password_in, role=role_in)
+    assert result == expected_output
+
+def test_user_not_found():
+    no_user_collection = MagicMock()
+    no_user_collection.find_one.return_value = None 
+    
+    result = check_user_access(no_user_collection, "unknown_user", password="123")
+    assert result == "User not found"
