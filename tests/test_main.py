@@ -34,10 +34,6 @@ def test_calculate_total_negative_values():
 def test_is_secure_password(password, expected_output):
     assert is_secure_password(password) == expected_output
 
-
-
-
-
 # Complex function 1
 # create a facke user collection to simulate the database
 @pytest.fixture
@@ -53,16 +49,16 @@ def mock_collection():
 @pytest.mark.parametrize(
     "username_in, password_in, role_in, expected_output",
     [
-        ("ali", "secure123", None, "Authenticated successfully"), 
         # باسوورد صح
-        ("ali", "wrong_pwd", None, "Invalid password"), 
+        ("ali", "secure123", None, "Authenticated successfully"), 
         # باسوورد غلط
-        ("ali", None, "admin", "Authorized as admin"),
+        ("ali", "wrong_pwd", None, "Invalid password"), 
         # دور صح
-        ("ali", None, "user", "Role mismatch"), 
+        ("ali", None, "admin", "Authorized as admin"),
         # دور غلط
-        ("ali", None, None, "Missing password or role") 
+        ("ali", None, "user", "Role mismatch"), 
         # ناقص
+        ("ali", None, None, "Missing password or role") 
     ]
 )
 def test_check_user_access_cases(mock_collection, username_in, password_in, role_in, expected_output):
